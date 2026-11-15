@@ -240,4 +240,5 @@ breakdown.md
 
 # Local-only folders
 to_delete/
-supporting_codes/
+supporting_codes/*
+!supporting_codes/postgres-init/
