@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 540" role="img" aria-labelledby="diagram-title diagram-desc">
+  <title id="diagram-title">HydraJob Phase 0 System Topology</title>
+  <desc id="diagram-desc">Service architecture showing User Browser connecting through Caddy Reverse Proxy to Streamlit Dashboard, FastAPI Backend, and n8n Orchestrator inside the private hydrajob_internal Docker network, backed by PostgreSQL 16 and Ollama.</desc>
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#14140F" />
+    </marker>
+    <marker id="arrow-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#6B6960" />
+    </marker>
+  </defs>
+
+  <style>
+    .kicker { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; fill: #6B6960; }
+    .title { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 20px; font-weight: 700; fill: #14140F; }
+    .subtitle { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; fill: #3B3A34; }
+    .node-title { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 700; fill: #14140F; }
+    .node-sub { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; fill: #3B3A34; }
+    .node-meta { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 10.5px; fill: #6B6960; }
+    .edge-label { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 10.5px; font-weight: 600; fill: #3B3A34; }
+    .zone-label { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; fill: #1F4A5C; }
+  </style>
+
+  <!-- Warm paper canvas -->
+  <rect x="0" y="0" width="980" height="540" fill="#FBFAF6" />
+  <rect x="16" y="16" width="948" height="508" rx="8" fill="none" stroke="#D9D4C6" stroke-width="1" />
+
+  <!-- Header -->
+  <text x="36" y="46" class="kicker">HYDRAJOB / PHASE 0 ARCHITECTURE</text>
+  <text x="36" y="70" class="title">Service Topology &amp; Network Isolation</text>
+  <text x="36" y="88" class="subtitle">Caddy terminates public HTTPS; PostgreSQL and Ollama remain strictly private inside hydrajob_internal.</text>
+  <line x1="36" y1="102" x2="944" y2="102" stroke="#D9D4C6" stroke-width="1" />
+
+  <!-- Private Docker Network Zone -->
+  <rect x="348" y="120" width="602" height="354" rx="10" fill="#F3EFE5" stroke="#D9D4C6" stroke-width="1.5" stroke-dasharray="6 4" />
+  <text x="366" y="142" class="zone-label">PRIVATE DOCKER NETWORK (hydrajob_internal)</text>
+
+  <!-- Node 1: User Browser -->
+  <g>
+    <rect x="32" y="246" width="120" height="88" rx="6" fill="#F1D9DD" stroke="#14140F" stroke-width="1.5" />
+    <rect x="32" y="246" width="5" height="88" rx="2" fill="#7A2E3B" />
+    <text x="48" y="274" class="node-title">User Browser</text>
+    <text x="48" y="294" class="node-sub">External Client</text>
+    <text x="48" y="314" class="node-meta">HTTPS :443</text>
+  </g>
+
+  <!-- Node 2: Caddy Reverse Proxy -->
+  <g>
+    <rect x="192" y="230" width="144" height="120" rx="6" fill="#EEE8DA" stroke="#14140F" stroke-width="1.5" />
+    <rect x="192" y="230" width="5" height="120" rx="2" fill="#B47A28" />
+    <text x="208" y="258" class="node-title">Caddy Proxy</text>
+    <text x="208" y="276" class="node-sub">production profile</text>
+    <text x="208" y="296" class="node-meta">Ports 80 / 443</text>
+    <text x="208" y="314" class="node-meta">TLS + Basic Auth</text>
+    <text x="208" y="332" class="node-meta">/, /api/*, /n8n/*</text>
+  </g>
+
+  <!-- Node 3: Streamlit Dashboard -->
+  <g>
+    <rect x="390" y="162" width="174" height="94" rx="6" fill="#DCE8EC" stroke="#14140F" stroke-width="1.5" />
+    <rect x="390" y="162" width="5" height="94" rx="2" fill="#1F4A5C" />
+    <text x="406" y="188" class="node-title">Streamlit UI</text>
+    <text x="406" y="206" class="node-sub">dashboard (:8501)</text>
+    <text x="406" y="224" class="node-meta">TZ: Asia/Kolkata</text>
+    <text x="406" y="242" class="node-meta">Calls FastAPI only</text>
+  </g>
+
+  <!-- Node 4: n8n Orchestrator -->
+  <g>
+    <rect x="390" y="344" width="174" height="104" rx="6" fill="#EEE8DA" stroke="#14140F" stroke-width="1.5" />
+    <rect x="390" y="344" width="5" height="104" rx="2" fill="#B47A28" />
+    <text x="406" y="370" class="node-title">n8n Orchestrator</text>
+    <text x="406" y="388" class="node-sub">n8n (:5678)</text>
+    <text x="406" y="406" class="node-meta">TZ: Asia/Kolkata</text>
+    <text x="406" y="424" class="node-meta">Postgres-backed</text>
+    <text x="406" y="440" class="node-meta">N8N_ENCRYPTION_KEY</text>
+  </g>
+
+  <!-- Node 5: FastAPI Backend -->
+  <g>
+    <rect x="616" y="236" width="156" height="114" rx="6" fill="#DCE8EC" stroke="#14140F" stroke-width="1.5" />
+    <rect x="616" y="236" width="5" height="114" rx="2" fill="#1F4A5C" />
+    <text x="632" y="264" class="node-title">FastAPI API</text>
+    <text x="632" y="282" class="node-sub">backend (:8000)</text>
+    <text x="632" y="302" class="node-meta">/health, /health/ready</text>
+    <text x="632" y="318" class="node-meta">/api/v1/system/status</text>
+    <text x="632" y="336" class="node-meta">X-API-Key + Alembic</text>
+  </g>
+
+  <!-- Node 6: PostgreSQL 16 -->
+  <g>
+    <rect x="802" y="162" width="136" height="112" rx="6" fill="#E4EDE4" stroke="#14140F" stroke-width="1.5" />
+    <rect x="802" y="162" width="5" height="112" rx="2" fill="#4E6A56" />
+    <text x="816" y="188" class="node-title">PostgreSQL 16</text>
+    <text x="816" y="206" class="node-sub">Source of Truth</text>
+    <text x="816" y="224" class="node-meta">5432 (private)</text>
+    <text x="816" y="242" class="node-meta">DBs: hydrajob,</text>
+    <text x="816" y="258" class="node-meta">hydrajob_test, n8n</text>
+  </g>
+
+  <!-- Node 7: Ollama -->
+  <g>
+    <rect x="802" y="338" width="136" height="110" rx="6" fill="#E4EDE4" stroke="#14140F" stroke-width="1.5" />
+    <rect x="802" y="338" width="5" height="110" rx="2" fill="#4E6A56" />
+    <text x="816" y="364" class="node-title">Ollama LLM</text>
+    <text x="816" y="382" class="node-sub">Local Inference</text>
+    <text x="816" y="400" class="node-meta">11434 (private)</text>
+    <text x="816" y="418" class="node-meta">No public port</text>
+    <text x="816" y="434" class="node-meta">Explicit pull</text>
+  </g>
+
+  <!-- Edges -->
+  <!-- Browser -> Caddy -->
+  <line x1="152" y1="290" x2="188" y2="290" stroke="#14140F" stroke-width="1.5" marker-end="url(#arrow)" />
+  <text x="155" y="280" class="edge-label">HTTPS</text>
+
+  <!-- Caddy -> Streamlit -->
+  <path d="M 336 254 L 364 254 L 364 209 L 386 209" fill="none" stroke="#14140F" stroke-width="1.5" marker-end="url(#arrow)" />
+  <text x="369" y="202" class="edge-label">/</text>
+
+  <!-- Caddy -> n8n -->
+  <path d="M 336 326 L 364 326 L 364 396 L 386 396" fill="none" stroke="#14140F" stroke-width="1.5" marker-end="url(#arrow)" />
+  <text x="352" y="412" class="edge-label">/n8n/*</text>
+
+  <!-- Caddy -> FastAPI -->
+  <line x1="336" y1="290" x2="612" y2="290" stroke="#14140F" stroke-width="1.5" marker-end="url(#arrow)" />
+  <text x="436" y="282" class="edge-label">/health* , /api/*</text>
+
+  <!-- Streamlit -> FastAPI -->
+  <path d="M 564 209 L 590 209 L 590 258 L 612 258" fill="none" stroke="#1F4A5C" stroke-width="1.5" marker-end="url(#arrow)" />
+  <text x="580" y="198" class="edge-label">HTTP + X-API-Key</text>
+
+  <!-- n8n -> FastAPI -->
+  <path d="M 564 374 L 590 374 L 590 326 L 612 326" fill="none" stroke="#14140F" stroke-width="1.5" marker-end="url(#arrow)" />
+  <text x="572" y="392" class="edge-label">Triggers</text>
+
+  <!-- FastAPI -> PostgreSQL -->
+  <path d="M 772 262 L 786 262 L 786 218 L 798 218" fill="none" stroke="#14140F" stroke-width="1.5" marker-end="url(#arrow)" />
+  <text x="774" y="208" class="edge-label">SQL</text>
+
+  <!-- FastAPI -> Ollama -->
+  <path d="M 772 326 L 786 326 L 786 384 L 798 384" fill="none" stroke="#14140F" stroke-width="1.5" marker-end="url(#arrow)" />
+  <text x="760" y="398" class="edge-label">/api/tags</text>
+
+  <!-- n8n -> PostgreSQL (persistence) -->
+  <path d="M 564 422 L 580 422 L 580 464 L 946 464 L 946 218 L 940 218" fill="none" stroke="#6B6960" stroke-width="1.25" stroke-dasharray="4 3" marker-end="url(#arrow-muted)" />
+  <text x="692" y="456" class="node-meta">n8n metadata persistence (db: n8n)</text>
+
+  <!-- Legend / Footer -->
+  <rect x="32" y="490" width="918" height="24" rx="4" fill="#EEE9DD" stroke="#D9D4C6" stroke-width="1" />
+  <text x="44" y="506" class="node-meta">Legend:  [Burgundy] External / Critical  |  [Amber] Proxy / Orchestration  |  [Teal] App / UI  |  [Sage] Private Data / Local AI  |  Streamlit never connects directly to PostgreSQL.</text>
+</svg>

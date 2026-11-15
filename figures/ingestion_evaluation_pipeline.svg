@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 540" role="img" aria-labelledby="pipe-title pipe-desc">
+  <title id="pipe-title">HydraJob Ingestion, Deduplication, Matching &amp; Task Pipeline</title>
+  <desc id="pipe-desc">End-to-end pipeline from URL submission or scheduled source scan through SSRF validation, extraction cascade, deduplication, eligibility and weighted Ollama scoring, and policy-gated internal task creation.</desc>
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#14140F" />
+    </marker>
+    <marker id="arrow-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#6B6960" />
+    </marker>
+  </defs>
+
+  <style>
+    .kicker { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; fill: #6B6960; }
+    .title { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 20px; font-weight: 700; fill: #14140F; }
+    .subtitle { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; fill: #3B3A34; }
+    .step-num { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 10px; font-weight: 700; fill: #6B6960; }
+    .node-title { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13.5px; font-weight: 700; fill: #14140F; }
+    .node-sub { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; fill: #3B3A34; }
+    .node-meta { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 10.5px; fill: #6B6960; }
+    .edge-label { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 10.5px; font-weight: 600; fill: #3B3A34; }
+  </style>
+
+  <!-- Canvas -->
+  <rect x="0" y="0" width="1040" height="540" fill="#FBFAF6" />
+  <rect x="14" y="14" width="1012" height="512" rx="8" fill="none" stroke="#D9D4C6" stroke-width="1" />
+
+  <!-- Header -->
+  <text x="32" y="42" class="kicker">HYDRAJOB / INGESTION &amp; EVALUATION PIPELINE</text>
+  <text x="32" y="66" class="title">Safe Retrieval, Extraction Cascade, Deduplication &amp; Profile Matching</text>
+  <text x="32" y="84" class="subtitle">Unknown fields remain null; mandatory ineligibility overrides high relevance scores; Pydantic validates every Ollama output.</text>
+  <line x1="32" y1="96" x2="1008" y2="96" stroke="#D9D4C6" stroke-width="1" />
+
+  <!-- Stage 1: Inputs (Row 1 Left) -->
+  <g>
+    <rect x="32" y="122" width="206" height="86" rx="6" fill="#F1D9DD" stroke="#14140F" stroke-width="1.5" />
+    <rect x="32" y="122" width="5" height="86" rx="2" fill="#7A2E3B" />
+    <text x="48" y="142" class="step-num">STAGE 01A / MANUAL</text>
+    <text x="48" y="160" class="node-title">Job URL Submission</text>
+    <text x="48" y="178" class="node-meta">POST /api/v1/jobs/ingest</text>
+    <text x="48" y="194" class="node-sub">Dashboard or n8n Webhook</text>
+  </g>
+
+  <g>
+    <rect x="32" y="232" width="206" height="86" rx="6" fill="#F1D9DD" stroke="#14140F" stroke-width="1.5" />
+    <rect x="32" y="232" width="5" height="86" rx="2" fill="#7A2E3B" />
+    <text x="48" y="252" class="step-num">STAGE 01B / SCHEDULED</text>
+    <text x="48" y="270" class="node-title">Company Source Scan</text>
+    <text x="48" y="288" class="node-meta">/api/v1/discovery/scan-source</text>
+    <text x="48" y="304" class="node-sub">Adapter registry + Search run</text>
+  </g>
+
+  <!-- Stage 2: SSRF + Rate Limit -->
+  <g>
+    <rect x="282" y="146" width="212" height="148" rx="6" fill="#EEE8DA" stroke="#14140F" stroke-width="1.5" />
+    <rect x="282" y="146" width="5" height="148" rx="2" fill="#B47A28" />
+    <text x="298" y="168" class="step-num">STAGE 02 / SAFETY GATE</text>
+    <text x="298" y="188" class="node-title">SSRF &amp; URL Guard</text>
+    <text x="298" y="208" class="node-meta">validate_safe_url()</text>
+    <text x="298" y="226" class="node-sub">Block private/loopback/link-local</text>
+    <text x="298" y="242" class="node-sub">DNS rebinding + redirect checks</text>
+    <text x="298" y="260" class="node-meta">canonicalize_job_url()</text>
+    <text x="298" y="278" class="node-meta">DomainRateLimiter cooldown</text>
+  </g>
+
+  <!-- Stage 3: Extraction Cascade -->
+  <g>
+    <rect x="538" y="122" width="234" height="196" rx="6" fill="#DCE8EC" stroke="#14140F" stroke-width="1.5" />
+    <rect x="538" y="122" width="5" height="196" rx="2" fill="#1F4A5C" />
+    <text x="554" y="142" class="step-num">STAGE 03 / EXTRACTION CASCADE</text>
+    <text x="554" y="162" class="node-title">Structured Extraction</text>
+    <text x="554" y="184" class="node-sub">1. JobPosting JSON-LD</text>
+    <text x="554" y="202" class="node-sub">2. OpenGraph &amp; Meta Tags</text>
+    <text x="554" y="220" class="node-sub">3. Visible HTML Structure</text>
+    <text x="554" y="238" class="node-sub">4. Playwright (if JS-rendered)</text>
+    <text x="554" y="256" class="node-sub">5. Ollama Structured JSON</text>
+    <text x="554" y="278" class="node-meta">Pydantic validated (PROMPT v1.0)</text>
+    <text x="554" y="296" class="node-meta">Unknown fields -&gt; null / []</text>
+  </g>
+
+  <!-- Stage 4: Deduplication -->
+  <g>
+    <rect x="816" y="146" width="192" height="148" rx="6" fill="#E4EDE4" stroke="#14140F" stroke-width="1.5" />
+    <rect x="816" y="146" width="5" height="148" rx="2" fill="#4E6A56" />
+    <text x="832" y="168" class="step-num">STAGE 04 / DEDUP</text>
+    <text x="832" y="188" class="node-title">Job Deduplicator</text>
+    <text x="832" y="208" class="node-sub">1. Canonical URL match</text>
+    <text x="832" y="226" class="node-sub">2. (source_type, external_id)</text>
+    <text x="832" y="244" class="node-sub">3. (company, title, location)</text>
+    <text x="832" y="262" class="node-sub">   + description similarity</text>
+    <text x="832" y="280" class="node-meta">Save JobSourceReference</text>
+  </g>
+
+  <!-- Row 2: Stage 5 Eligibility, Stage 6 Scoring, Stage 7 Tasks & Audit -->
+  <g>
+    <rect x="816" y="348" width="192" height="120" rx="6" fill="#DCE8EC" stroke="#14140F" stroke-width="1.5" />
+    <rect x="816" y="348" width="5" height="120" rx="2" fill="#1F4A5C" />
+    <text x="832" y="368" class="step-num">STAGE 05 / ELIGIBILITY</text>
+    <text x="832" y="388" class="node-title">Eligibility Gate</text>
+    <text x="832" y="408" class="node-sub">Grad year, degree/branch,</text>
+    <text x="832" y="424" class="node-sub">CGPA, exp, location, visa</text>
+    <text x="832" y="444" class="node-meta">ELIGIBLE | UNCERTAIN |</text>
+    <text x="832" y="458" class="node-meta">INELIGIBLE | NOT_EVALUATED</text>
+  </g>
+
+  <g>
+    <rect x="538" y="348" width="234" height="120" rx="6" fill="#DCE8EC" stroke="#14140F" stroke-width="1.5" />
+    <rect x="538" y="348" width="5" height="120" rx="2" fill="#1F4A5C" />
+    <text x="554" y="368" class="step-num">STAGE 06 / WEIGHTED SCORING</text>
+    <text x="554" y="388" class="node-title">Relevance &amp; Resume Fit</text>
+    <text x="554" y="408" class="node-meta">0.30E + 0.30T + 0.20P + 0.10R + 0.10L</text>
+    <text x="554" y="428" class="node-sub">INELIGIBLE overrides high score</text>
+    <text x="554" y="446" class="node-meta">Store JobEvaluation + evidence</text>
+  </g>
+
+  <g>
+    <rect x="282" y="348" width="212" height="120" rx="6" fill="#E4EDE4" stroke="#14140F" stroke-width="1.5" />
+    <rect x="282" y="348" width="5" height="120" rx="2" fill="#4E6A56" />
+    <text x="298" y="368" class="step-num">STAGE 07 / TASK POLICY</text>
+    <text x="298" y="388" class="node-title">Idempotent Tasks</text>
+    <text x="298" y="408" class="node-meta">85+ HIGH | 70-84 GOOD</text>
+    <text x="298" y="424" class="node-meta">55-69 REVIEW | &lt;55 LOW</text>
+    <text x="298" y="444" class="node-sub">Create Tasks in PostgreSQL</text>
+    <text x="298" y="458" class="node-sub">(No auto-submit)</text>
+  </g>
+
+  <g>
+    <rect x="32" y="348" width="206" height="120" rx="6" fill="#EEE8DA" stroke="#14140F" stroke-width="1.5" />
+    <rect x="32" y="348" width="5" height="120" rx="2" fill="#B47A28" />
+    <text x="48" y="368" class="step-num">STAGE 08 / HUMAN CONTROL</text>
+    <text x="48" y="388" class="node-title">Dashboard Review</text>
+    <text x="48" y="408" class="node-sub">Inspect / edit extracted fields</text>
+    <text x="48" y="426" class="node-sub">Create JobApplication</text>
+    <text x="48" y="444" class="node-sub">Immutable ApplicationEvent</text>
+  </g>
+
+  <!-- Connectors Row 1 -->
+  <path d="M 238 165 L 260 165 L 260 205 L 278 205" fill="none" stroke="#14140F" stroke-width="1.5" marker-end="url(#arrow)" />
+  <path d="M 238 275 L 260 275 L 260 235 L 278 235" fill="none" stroke="#14140F" stroke-width="1.5" marker-end="url(#arrow)" />
+  <line x1="494" y1="220" x2="534" y2="220" stroke="#14140F" stroke-width="1.5" marker-end="url(#arrow)" />
+  <line x1="772" y1="220" x2="812" y2="220" stroke="#14140F" stroke-width="1.5" marker-end="url(#arrow)" />
+
+  <!-- Connector Stage 4 -> Stage 5 -->
+  <line x1="912" y1="294" x2="912" y2="344" stroke="#14140F" stroke-width="1.5" marker-end="url(#arrow)" />
+
+  <!-- Connectors Row 2 (Right to Left) -->
+  <line x1="816" y1="408" x2="776" y2="408" stroke="#14140F" stroke-width="1.5" marker-end="url(#arrow)" />
+  <line x1="538" y1="408" x2="498" y2="408" stroke="#14140F" stroke-width="1.5" marker-end="url(#arrow)" />
+  <line x1="282" y1="408" x2="242" y2="408" stroke="#14140F" stroke-width="1.5" marker-end="url(#arrow)" />
+
+  <!-- Footer -->
+  <rect x="32" y="486" width="976" height="24" rx="4" fill="#EEE9DD" stroke="#D9D4C6" stroke-width="1" />
+  <text x="44" y="502" class="node-meta">Audit &amp; Fallbacks: Every run creates an IngestionRun record; malformed Ollama JSON falls back deterministically and flags NEEDS_REVIEW.</text>
+</svg>
