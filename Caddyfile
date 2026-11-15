@@ -1,0 +1,60 @@
+# ==============================================================================
+# HydraJob Production Reverse Proxy (Caddy 2)
+# ==============================================================================
+# Provides automatic HTTPS via Let's Encrypt when DOMAIN_NAME is a public DNS
+# name pointing to the EC2 instance (or self-signed TLS when set to localhost).
+#
+# Internal services (postgres, ollama) are NEVER exposed through Caddy.
+# ==============================================================================
+
+{$DOMAIN_NAME:localhost} {
+	encode gzip zstd
+
+	# Security headers
+	header {
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	# FastAPI health probes (safe unauthenticated liveness/readiness check)
+	handle /health* {
+		reverse_proxy backend:8000
+	}
+
+	# FastAPI REST API (protected by X-API-Key header in backend/app/core/security.py)
+	handle /api/* {
+		reverse_proxy backend:8000
+	}
+
+	# Optional n8n subpath routing (if not using a dedicated n8n subdomain)
+	# Protect with Caddy basic_auth in addition to n8n's own user management.
+	handle /n8n/* {
+		basic_auth {
+			{$CADDY_BASIC_AUTH_USER:admin} {$CADDY_BASIC_AUTH_HASH}
+		}
+		uri strip_prefix /n8n
+		reverse_proxy n8n:5678
+	}
+
+	# Streamlit Dashboard (default route, protected by Basic Auth placeholder)
+	# Generate password hash:
+	#   docker run --rm caddy:2-alpine caddy hash-password --plaintext 'your-password'
+	handle {
+		basic_auth {
+			{$CADDY_BASIC_AUTH_USER:admin} {$CADDY_BASIC_AUTH_HASH}
+		}
+		reverse_proxy dashboard:8501
+	}
+}
+
+# Recommended: Dedicated subdomain for n8n in production (e.g., n8n.example.com)
+# Uncomment and set N8N_HOST=n8n.example.com, N8N_PROTOCOL=https, N8N_WEBHOOK_URL=https://n8n.example.com/
+# n8n.{$DOMAIN_NAME} {
+# 	encode gzip zstd
+# 	basic_auth {
+# 		{$CADDY_BASIC_AUTH_USER:admin} {$CADDY_BASIC_AUTH_HASH}
+# 	}
+# 	reverse_proxy n8n:5678
+# }

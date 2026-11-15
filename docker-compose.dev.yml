@@ -1,0 +1,17 @@
+# ==============================================================================
+# HydraJob Development Override (Hot Reload)
+# ==============================================================================
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+# ==============================================================================
+
+services:
+  backend:
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    volumes:
+      - ./backend/app:/app/app
+      - ./backend/alembic:/app/alembic
+
+  dashboard:
+    volumes:
+      - ./dashboard:/app

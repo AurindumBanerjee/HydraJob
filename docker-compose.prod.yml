@@ -1,0 +1,26 @@
+# ==============================================================================
+# HydraJob Production Override (AWS EC2 + Caddy HTTPS)
+# ==============================================================================
+# Removes all direct host port bindings from internal services so ONLY Caddy
+# exposes ports 80 and 443 to the public internet.
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production up -d --build
+# ==============================================================================
+
+services:
+  postgres:
+    ports: !reset []
+
+  backend:
+    environment:
+      APP_ENV: production
+    ports: !reset []
+
+  dashboard:
+    ports: !reset []
+
+  n8n:
+    environment:
+      N8N_SECURE_COOKIE: "true"
+    ports: !reset []
