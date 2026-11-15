@@ -218,3 +218,22 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# HydraJob project-specific ignores
+.env.*
+!.env.example
+*.tmp
+*.bak
+*.swp
+*.db
+*.sqlite
+*.sqlite3
+data/private/
+data/raw/
+data/exports/
+backups/
+caddy_data/
+caddy_config/
+n8n/local_files/
+breakdown.md
+
