@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hydrajob-dashboard"
+version = "0.1.0"
+description = "HydraJob Phase 0 Streamlit monitoring dashboard (API-only client)"
+requires-python = ">=3.11"
+dependencies = [
+    "streamlit>=1.32.0,<2.0.0",
+    "httpx>=0.26.0,<1.0.0",
+    "pydantic>=2.5.0,<3.0.0",
+    "tzdata>=2024.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0,<9.0.0",
+    "ruff>=0.4.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint.isort]
+known-first-party = ["components", "services"]
