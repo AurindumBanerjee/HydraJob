@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Sequential operator guide for deploying HydraJob on AWS EC2, configuring secrets, starting Docker Compose, pulling Ollama models, creating your n8n account, and verifying the system.">
+<title>HydraJob — Sequential Setup &amp; AWS Deployment Journey</title>
+<style>
+  :root{
+    --paper:#FBFAF6; --paper-warm:#F3EFE5; --paper-cool:#EEE9DD;
+    --ink:#14140F; --ink-soft:#3B3A34; --graphite:#6B6960; --rule:#D9D4C6;
+    --accent:#7A2E3B; --blueprint:#1F4A5C; --sage:#4E6A56; --amber:#B47A28; --tint:#EEE8DA;
+    --hl:#F1D9DD; --hl2:#DCE8EC;
+    --font-serif: Georgia, 'Times New Roman', serif;
+    --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: ui-monospace, 'Cascadia Code', Consolas, 'Courier New', monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--paper);color:var(--ink);font-family:var(--font-sans);font-weight:400;font-size:17px;line-height:1.65}
+  ::selection{background:var(--accent);color:var(--paper)}
+
+  .masthead{max-width:1200px;margin:0 auto;padding:56px 48px 32px;border-bottom:1px solid var(--ink)}
+  .masthead .kicker{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;color:var(--graphite);display:flex;justify-content:space-between;padding-bottom:24px;text-transform:uppercase}
+  .masthead h1{font-family:var(--font-serif);font-weight:500;font-size:clamp(38px,6vw,76px);line-height:.98;letter-spacing:-.025em;margin-bottom:20px}
+  .masthead h1 em{font-style:italic;font-weight:400;color:var(--accent)}
+  .masthead .deck{font-family:var(--font-serif);font-size:21px;line-height:1.45;color:var(--ink-soft);max-width:740px;font-style:italic}
+  .masthead .meta{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:36px;padding-top:22px;border-top:1px solid var(--rule);font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:var(--graphite)}
+  .meta div span{display:block;color:var(--ink);font-family:var(--font-sans);font-size:14px;font-weight:600;letter-spacing:0;margin-top:4px}
+
+  .toc{max-width:1200px;margin:0 auto;padding:24px 48px;display:flex;gap:18px;flex-wrap:wrap;border-bottom:1px solid var(--rule);font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:var(--graphite)}
+  .toc a{color:var(--graphite);text-decoration:none;transition:color .15s}
+  .toc a:hover{color:var(--accent)}
+  .toc a span{color:var(--accent);margin-right:5px}
+
+  .container{max-width:1200px;margin:0 auto;padding:56px 48px}
+  section{margin-bottom:84px;scroll-margin-top:24px}
+  .section-head{display:grid;grid-template-columns:160px 1fr;gap:32px;align-items:baseline;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--ink)}
+  .section-head .num{font-family:var(--font-mono);font-size:12px;letter-spacing:.18em;color:var(--accent);padding-top:6px}
+  .section-head h2{font-family:var(--font-serif);font-weight:500;font-size:38px;line-height:1.05;letter-spacing:-.02em}
+  .section-lede{max-width:740px;margin:0 0 34px 192px;font-family:var(--font-serif);font-style:italic;font-size:18.5px;color:var(--ink-soft)}
+
+  .prose{display:grid;grid-template-columns:160px minmax(0,1fr);gap:32px}
+  .prose .sidenote{font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;color:var(--graphite);padding-top:6px;text-transform:uppercase}
+  .prose-body{max-width:740px}
+  .prose-body p{margin-bottom:1em}
+  .prose-body h3{font-family:var(--font-serif);font-weight:500;font-size:24px;letter-spacing:-.01em;margin:32px 0 12px}
+  .prose-body h4{font-family:var(--font-mono);font-weight:600;font-size:12px;letter-spacing:.14em;color:var(--accent);margin:24px 0 10px;text-transform:uppercase}
+  .prose-body em.term{font-style:normal;color:var(--accent);font-weight:600}
+  .prose-body ul{margin:10px 0 16px 22px;color:var(--ink-soft);font-size:16px}
+  .prose-body li{margin-bottom:6px}
+  .lede::first-letter{font-family:var(--font-serif);font-weight:500;font-size:4.5em;float:left;line-height:.85;padding:6px 12px 0 0;color:var(--accent)}
+
+  .concept{background:var(--paper-warm);padding:22px 26px;margin:22px 0;border-left:3px solid var(--blueprint);border-radius:0 4px 4px 0}
+  .concept .concept-tag{font-family:var(--font-mono);font-size:10px;letter-spacing:.2em;color:var(--blueprint);margin-bottom:6px;font-weight:600}
+  .concept h5{font-family:var(--font-serif);font-weight:500;font-size:20px;margin-bottom:8px}
+  .concept p{font-size:15.5px;color:var(--ink-soft);margin-bottom:.6em}
+  .concept p:last-child{margin-bottom:0}
+
+  .intuition{background:#FAF3E7;padding:18px 22px;margin:18px 0;border-left:3px solid var(--amber);border-radius:0 4px 4px 0}
+  .intuition .concept-tag{font-family:var(--font-mono);font-size:10px;letter-spacing:.2em;color:var(--amber);margin-bottom:6px;font-weight:600}
+  .intuition p{font-size:15.5px;color:var(--ink-soft);margin:0}
+
+  .why{background:var(--paper-warm);padding:18px 22px;margin:18px 0;border-left:3px solid var(--accent)}
+  .why .concept-tag{font-family:var(--font-mono);font-size:10px;letter-spacing:.2em;color:var(--accent);margin-bottom:6px;font-weight:600}
+  .why p{margin:0;color:var(--ink-soft);font-size:15.5px}
+
+  .worked{background:#EDF2EC;padding:18px 22px;margin:18px 0;border-left:3px solid var(--sage);border-radius:0 4px 4px 0}
+  .worked .concept-tag{font-family:var(--font-mono);font-size:10px;letter-spacing:.2em;color:var(--sage);margin-bottom:6px;font-weight:600}
+  .worked p{font-size:15.5px;color:var(--ink-soft);margin:0 0 .5em}
+  .worked p:last-child{margin-bottom:0}
+
+  code{font-family:var(--font-mono);font-size:.86em;background:var(--tint);padding:1px 6px;border-radius:2px;color:var(--blueprint)}
+  pre.code{font-family:var(--font-mono);font-size:12.5px;line-height:1.6;background:var(--ink);color:#E9E4D6;padding:16px 18px;margin:12px 0 20px;overflow-x:auto;border-radius:3px;white-space:pre}
+
+  .steps{margin:20px 0;counter-reset:s}
+  .step{display:grid;grid-template-columns:44px 1fr;gap:16px;padding:16px 0;border-bottom:1px dashed var(--rule)}
+  .step:last-child{border-bottom:none}
+  .step::before{counter-increment:s;content:counter(s);font-family:var(--font-mono);font-size:16px;font-weight:600;color:var(--accent);padding-top:2px}
+  .step h5{font-family:var(--font-serif);font-weight:500;font-size:18px;margin-bottom:4px}
+  .step p{font-size:15px;color:var(--ink-soft);margin:0 0 6px;line-height:1.55}
+
+  table.t{border-collapse:collapse;width:100%;margin:18px 0;font-size:14.5px}
+  table.t th,table.t td{border:1px solid var(--rule);padding:9px 12px;text-align:left;vertical-align:top}
+  table.t th{background:var(--paper-cool);font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:var(--accent);font-weight:600}
+  table.t td.m{font-family:var(--font-mono);font-size:12.5px;color:var(--blueprint)}
+  .scroll{overflow-x:auto}
+
+  .connect{margin:28px auto 0;padding:14px 22px;max-width:660px;text-align:center;font-family:var(--font-serif);font-style:italic;font-size:16.5px;color:var(--accent);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+  .connect::before{content:"↓  "} .connect::after{content:"  ↓"}
+
+  .widget{background:var(--paper-warm);border:1px solid var(--rule);border-top:2px solid var(--ink);padding:24px;margin:28px 0}
+  .widget .w-tag{font-family:var(--font-mono);font-size:10px;letter-spacing:.2em;color:var(--accent);margin-bottom:6px;font-weight:600}
+  .widget h5{font-family:var(--font-serif);font-weight:500;font-size:20px;margin-bottom:12px}
+  .w-info{font-family:var(--font-mono);font-size:12.5px;line-height:1.7;color:var(--ink-soft);background:var(--paper);border:1px solid var(--rule);padding:12px 14px;margin-top:12px}
+  .btn{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;background:var(--ink);color:var(--paper);border:none;padding:9px 14px;cursor:pointer;margin:0 8px 6px 0}
+  .btn:hover{background:var(--accent)}
+  .btn.alt{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+  .btn.alt:hover{background:var(--ink);color:var(--paper)}
+  .chk-item{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-bottom:1px dashed var(--rule);cursor:pointer;font-size:15px}
+  .chk-item:last-child{border-bottom:none}
+  .chk-item input{margin-top:4px;accent-color:var(--accent);width:16px;height:16px;cursor:pointer}
+  .chk-item.done span{text-decoration:line-through;color:var(--graphite)}
+
+  .pipeline-final{background:var(--paper-warm);padding:52px 48px;margin:56px -48px;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)}
+  .pipeline-final-inner{max-width:1104px;margin:0 auto}
+  .pipeline-final .eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.2em;color:var(--accent);margin-bottom:8px}
+  .pipeline-final h2{font-family:var(--font-serif);font-weight:500;font-size:34px;letter-spacing:-.02em;margin-bottom:10px}
+  .pipeline-final .sub{color:var(--ink-soft);font-family:var(--font-serif);font-style:italic;margin-bottom:32px;max-width:640px}
+  .stages{display:grid;grid-template-columns:repeat(4,1fr)}
+  .stage{padding:22px 18px;border-right:1px solid var(--rule)}
+  .stage:last-child{border-right:none}
+  .stage .stage-num{font-family:var(--font-mono);font-size:11px;letter-spacing:.15em;color:var(--accent);margin-bottom:8px}
+  .stage h3{font-family:var(--font-serif);font-weight:500;font-size:18.5px;line-height:1.2;margin-bottom:12px}
+  .stage p{font-size:14px;line-height:1.55;color:var(--ink-soft)}
+  .stage .metric{font-family:var(--font-mono);font-size:11px;color:var(--blueprint);margin-top:12px;padding-top:10px;border-top:1px solid var(--rule)}
+
+  .cheat{background:var(--ink);color:var(--paper);margin:0 -48px;padding:64px 48px}
+  .cheat-inner{max-width:1104px;margin:0 auto}
+  .cheat .eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.2em;color:#C9A87B;margin-bottom:8px}
+  .cheat h2{font-family:var(--font-serif);font-weight:400;font-size:44px;letter-spacing:-.02em;margin-bottom:8px}
+  .cheat .cheat-sub{color:#8F8B7F;font-family:var(--font-serif);font-style:italic;font-size:17px;margin-bottom:40px}
+  .cheat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#2A2823;border:1px solid #2A2823}
+  .cheat-card{background:var(--ink);padding:22px}
+  .cheat-card h4{font-family:var(--font-mono);font-size:11px;letter-spacing:.15em;color:#C9A87B;margin-bottom:12px}
+  .cheat-card .big{font-family:var(--font-serif);font-size:23px;line-height:1.25;margin:4px 0 6px}
+  .cheat-card .big-label{font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;color:#8F8B7F}
+  .cheat-card dl{font-size:13.5px;line-height:1.55;margin-top:10px}
+  .cheat-card dt{color:#8F8B7F;display:inline;font-family:var(--font-mono);font-size:12px}
+  .cheat-card dd{display:inline;color:var(--paper)}
+  .cheat-card dd::after{content:"";display:block;height:6px}
+
+  footer{max-width:1200px;margin:0 auto;padding:40px 48px;font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:var(--graphite);display:flex;justify-content:space-between;border-top:1px solid var(--rule)}
+
+  @media (max-width:900px){
+    .masthead,.container,.toc,footer{padding-left:20px;padding-right:20px}
+    .pipeline-final,.cheat{margin-left:-20px;margin-right:-20px;padding-left:20px;padding-right:20px}
+    .masthead .meta{grid-template-columns:repeat(2,1fr)}
+    .section-head{grid-template-columns:1fr;gap:8px}
+    .section-lede{margin-left:0}
+    .prose{grid-template-columns:1fr;gap:8px}
+    .stages{grid-template-columns:1fr}
+    .stage{border-right:none;border-bottom:1px solid var(--rule)}
+    .cheat-grid{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="kicker"><span>OPERATOR RUNBOOK · HYDRAJOB</span><span>SEQUENTIAL SETUP GUIDE (AWS + DOCKER + OLLAMA + N8N)</span></div>
+  <h1>Taking <em>HydraJob</em><br>from repo to live AWS</h1>
+  <p class="deck">Every manual step you need to perform in order—from checking AWS credits and provisioning EC2, to generating secrets, pulling Ollama, creating your n8n account, and running your first job scan.</p>
+  <div class="meta">
+    <div>TARGET HOST<span>AWS EC2 (Ubuntu 24.04)</span></div>
+    <div>STACK<span>Compose + Caddy + Ollama</span></div>
+    <div>ORCHESTRATOR<span>Self-hosted n8n</span></div>
+    <div>TIMEZONE<span>Asia/Kolkata (IST)</span></div>
+  </div>
+</header>
+
+<nav class="toc">
+  <a href="#preflight"><span>01</span>Billing &amp; domain</a>
+  <a href="#ec2"><span>02</span>AWS EC2 &amp; EBS</a>
+  <a href="#sg"><span>03</span>Security groups</a>
+  <a href="#docker"><span>04</span>Server &amp; Docker</a>
+  <a href="#env"><span>05</span>Secrets &amp; .env</a>
+  <a href="#boot"><span>06</span>Launch &amp; Ollama</a>
+  <a href="#n8n"><span>07</span>n8n account &amp; flows</a>
+  <a href="#firstuse"><span>08</span>Dashboard first use</a>
+  <a href="#ops"><span>09</span>Backups &amp; Gmail later</a>
+</nav>
+
+<div class="container">
+
+<section id="preflight">
+  <div class="section-head"><div class="num">§ 01 / PREFLIGHT</div><h2>Check AWS credits &amp; domain before spending</h2></div>
+  <p class="section-lede">Open-source software has zero license fees, but EC2 compute, EBS storage, and Elastic IPs still bill your AWS account.</p>
+  <div class="prose"><div class="sidenote">Before provisioning</div><div class="prose-body">
+    <p class="lede">Start in the <em class="term">AWS Billing and Cost Management</em> console. Verify your promotional credit balance, expiration date, and which EC2/EBS services are covered. At the same time, create an AWS Budget alert so an accidental oversized instance never surprises you.</p>
+    <div class="steps">
+      <div class="step"><div><h5>Verify AWS credits</h5><p>Open <strong>AWS Console → Billing and Cost Management → Credits</strong>. Confirm active credits and expiry date.</p></div></div>
+      <div class="step"><div><h5>Create a monthly AWS Budget</h5><p>Go to <strong>Budgets → Create budget → Zero spend / Cost budget</strong>. Set a monthly threshold (e.g., <code>$15</code> and <code>$30</code>) with email alerts at 80% and 100%.</p></div></div>
+      <div class="step"><div><h5>Prepare a domain name (recommended for HTTPS)</h5><p>Caddy automatically provisions Let's Encrypt TLS certificates when <code>DOMAIN_NAME</code> points to your server's public Elastic IP. If you skip a domain for now, Caddy falls back to self-signed TLS on <code>localhost</code>, and n8n webhooks will only be reachable internally or via SSH/SSM port forwarding.</p></div></div>
+    </div>
+    <div class="intuition"><div class="concept-tag">LOCAL TEST OPTION FIRST</div><p>Want to test the whole stack on your Windows/Linux laptop before creating an EC2 instance? Start Docker Desktop, copy <code>.env.example</code> to <code>.env</code>, run <code>python supporting_codes/generate_secrets.py</code>, and run <code>docker compose up --build -d</code>. Everything below applies identically to EC2.</p></div>
+  </div></div>
+  <div class="connect">Next: provisioning the right EC2 instance size so Ollama does not run out of memory</div>
+</section>
+
+<section id="ec2">
+  <div class="section-head"><div class="num">§ 02 / COMPUTE &amp; DISK</div><h2>Provision the AWS EC2 server</h2></div>
+  <p class="section-lede">Ollama is the memory-hungry component; size the instance around the model you plan to run.</p>
+  <div class="prose"><div class="sidenote">Exact EC2 parameters</div><div class="prose-body">
+    <div class="why"><div class="concept-tag">WHY NOT T2.MICRO OR T3.MICRO</div><p>A 1–2 GB RAM free-tier instance will immediately OOM-kill the kernel or container when loading a 7B quantized model alongside PostgreSQL, n8n, FastAPI, and Streamlit.</p></div>
+    <div class="scroll"><table class="t">
+      <tr><th>PARAMETER</th><th>RECOMMENDED VALUE</th><th>NOTES</th></tr>
+      <tr><td>Name &amp; OS</td><td class="m">Ubuntu Server 24.04 LTS (x86_64)</td><td>Clean Docker CE &amp; SSM Agent support.</td></tr>
+      <tr><td>Instance Type (7B model)</td><td class="m">t3a.xlarge or m6i.xlarge (4 vCPU, 16 GB RAM)</td><td>Recommended baseline for <code>qwen2.5:7b-instruct</code> (Q4).</td></tr>
+      <tr><td>Instance Type (3B model)</td><td class="m">t3a.large (2 vCPU, 8 GB RAM)</td><td>Cheaper option for <code>qwen2.5:3b-instruct</code>.</td></tr>
+      <tr><td>EBS Root Volume</td><td class="m">80 GB gp3 (3,000 IOPS, Encrypted)</td><td>OS/Docker (~20 GB) + Ollama weights (~10 GB) + Postgres/n8n/backups (~20+ GB).</td></tr>
+      <tr><td>IAM Instance Profile</td><td class="m">AmazonSSMManagedInstanceCore</td><td>Lets you connect via AWS Systems Manager Session Manager without opening SSH port 22.</td></tr>
+      <tr><td>Elastic IP</td><td class="m">Allocate &amp; Associate 1 Elastic IP</td><td>Prevents public IP changes on reboot; point your DNS <code>A</code> record here.</td></tr>
+    </table></div>
+    <div class="concept"><div class="concept-tag">DNS RECORD</div><h5>Point your domain before starting Caddy</h5><p>In your DNS provider (Route 53, Cloudflare, Namecheap), create an <code>A</code> record for <code>hydrajob.yourdomain.com</code> (and optionally <code>n8n.yourdomain.com</code>) pointing to your EC2 Elastic IP. Wait 1–2 minutes for propagation.</p></div>
+  </div></div>
+  <div class="connect">Next: locking down inbound ports with an EC2 Security Group</div>
+</section>
+
+<section id="sg">
+  <div class="section-head"><div class="num">§ 03 / FIREWALL</div><h2>Configure the Security Group</h2></div>
+  <p class="section-lede">Only Caddy (ports 80 and 443) should ever face the internet. Internal databases and Ollama stay locked inside Docker.</p>
+  <div class="prose"><div class="sidenote">Inbound &amp; outbound</div><div class="prose-body">
+    <div class="scroll"><table class="t">
+      <tr><th>DIRECTION</th><th>PORT / PROTOCOL</th><th>SOURCE</th><th>PURPOSE</th></tr>
+      <tr><td>Inbound</td><td class="m">80 / TCP</td><td class="m">0.0.0.0/0</td><td>HTTP ACME challenge &amp; automatic redirect to HTTPS.</td></tr>
+      <tr><td>Inbound</td><td class="m">443 / TCP</td><td class="m">0.0.0.0/0 (or your /32 IP)</td><td>HTTPS via Caddy (Streamlit + n8n + API).</td></tr>
+      <tr><td>Inbound</td><td class="m">443 / UDP</td><td class="m">0.0.0.0/0</td><td>Optional HTTP/3 (QUIC) for Caddy.</td></tr>
+      <tr><td>Inbound</td><td class="m">22 / TCP</td><td class="m">CLOSED (or your /32 IP only)</td><td>Prefer AWS SSM Session Manager over public SSH.</td></tr>
+      <tr><td>Inbound</td><td class="m">5432, 11434, 8000, 8501, 5678</td><td class="m">NEVER OPEN</td><td>Internal Docker network services only.</td></tr>
+      <tr><td>Outbound</td><td class="m">All traffic</td><td class="m">0.0.0.0/0</td><td>APT/Docker pulls, Let's Encrypt, permitted career-page fetching.</td></tr>
+    </table></div>
+  </div></div>
+  <div class="connect">Next: connecting to the server and installing Docker Engine + log rotation</div>
+</section>
+
+<section id="docker">
+  <div class="section-head"><div class="num">§ 04 / SERVER SETUP</div><h2>Install Docker, log rotation &amp; clone repo</h2></div>
+  <p class="section-lede">Connect via AWS Systems Manager Session Manager and prepare the host before starting containers.</p>
+  <div class="prose"><div class="sidenote">Ubuntu 24.04 commands</div><div class="prose-body">
+    <p>In <strong>EC2 → Instances → Connect → Session Manager</strong>, open a shell and run:</p>
+    <pre class="code">sudo apt-get update
+sudo apt-get install -y ca-certificates curl git python3 python3-yaml
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release &amp;&amp; echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list &gt; /dev/null
+
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo usermod -aG docker "$USER"</pre>
+    <h4>Prevent disk exhaustion with Docker log rotation</h4>
+    <pre class="code">sudo tee /etc/docker/daemon.json &gt; /dev/null &lt;&lt;'EOF'
+{
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "20m",
+    "max-file": "5"
+  }
+}
+EOF
+sudo systemctl restart docker
+git clone &lt;YOUR_HYDRAJOB_REPO_URL&gt; ~/HydraJob
+cd ~/HydraJob</pre>
+  </div></div>
+  <div class="connect">Next: generating strong secrets and creating your production .env file</div>
+</section>
+
+<section id="env">
+  <div class="section-head"><div class="num">§ 05 / SECRETS</div><h2>Generate credentials &amp; configure <code>.env</code></h2></div>
+  <p class="section-lede">Every service reads from a single untracked <code>.env</code> file. Back up <code>N8N_ENCRYPTION_KEY</code> safely.</p>
+  <div class="prose"><div class="sidenote">Environment parameters</div><div class="prose-body">
+    <div class="steps">
+      <div class="step"><div><h5>Generate random secrets</h5><p>Run the built-in helper script (it prints fresh keys without committing anything):</p><pre class="code">cp .env.example .env
+python3 supporting_codes/generate_secrets.py</pre></div></div>
+      <div class="step"><div><h5>Generate your Caddy Basic Auth password hash</h5><p>Caddy protects both the Streamlit dashboard and <code>/n8n/</code> behind Basic Auth in production. Hash your chosen password:</p><pre class="code">docker run --rm caddy:2-alpine caddy hash-password --plaintext 'YourStrongPasswordHere'</pre><p>In <code>.env</code>, escape every <code>$</code> as <code>$$</code> so Docker Compose does not treat <code>$2a$14...</code> as an env var.</p></div></div>
+      <div class="step"><div><h5>Edit <code>.env</code> with these production values</h5>
+        <div class="scroll"><table class="t">
+          <tr><th>VARIABLE</th><th>PRODUCTION VALUE</th><th>WHY</th></tr>
+          <tr><td class="m">APP_ENV</td><td class="m">production</td><td>Enforces strict <code>X-API-Key</code> auth (fail-closed if empty).</td></tr>
+          <tr><td class="m">APP_SECRET_KEY / APP_API_KEY</td><td class="m">(from generate_secrets.py)</td><td>Shared key between FastAPI, Streamlit, and n8n.</td></tr>
+          <tr><td class="m">POSTGRES_PASSWORD / DATABASE_URL</td><td class="m">Strong password + @postgres:5432/hydrajob</td><td>Used by both HydraJob and n8n's separate <code>n8n</code> DB.</td></tr>
+          <tr><td class="m">N8N_ENCRYPTION_KEY</td><td class="m">(64 hex chars)</td><td>Encrypts n8n credentials in Postgres. Never lose this key.</td></tr>
+          <tr><td class="m">DOMAIN_NAME</td><td class="m">hydrajob.yourdomain.com</td><td>Triggers automatic Let's Encrypt HTTPS in <code>Caddyfile</code>.</td></tr>
+          <tr><td class="m">N8N_HOST / N8N_PROTOCOL / N8N_WEBHOOK_URL</td><td class="m">hydrajob.yourdomain.com / https / https://hydrajob.yourdomain.com/n8n/</td><td>Ensures n8n generates valid HTTPS webhook URLs.</td></tr>
+          <tr><td class="m">N8N_SECURE_COOKIE</td><td class="m">true</td><td>Required when serving n8n over HTTPS.</td></tr>
+          <tr><td class="m">OLLAMA_MODEL / OLLAMA_REQUEST_TIMEOUT</td><td class="m">qwen2.5:7b-instruct / 60.0</td><td>Gives CPU inference enough headroom (use <code>90.0</code> if needed).</td></tr>
+        </table></div>
+      </div></div>
+    </div>
+  </div></div>
+  <div class="connect">Next: starting the production stack, pulling the Ollama model, and migrating the database</div>
+</section>
+
+<section id="boot">
+  <div class="section-head"><div class="num">§ 06 / LAUNCH</div><h2>Start services, pull Ollama &amp; run migrations</h2></div>
+  <p class="section-lede">Ollama models are never downloaded automatically on container boot; pull once into the persistent volume.</p>
+  <div class="prose"><div class="sidenote">Startup sequence</div><div class="prose-body">
+    <pre class="code"># 1. Validate compose config cleanly
+python3 supporting_codes/verify_compose.py
+
+# 2. Build and start production stack (postgres, ollama, backend, dashboard, n8n, caddy)
+docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production up -d --build
+
+# 3. Pull your chosen Ollama model into the persistent ollama_data volume
+docker compose exec ollama ollama pull qwen2.5:7b-instruct
+
+# 4. Run Alembic database migrations (creates all 13 tables)
+docker compose exec backend alembic upgrade head
+
+# 5. Seed the 19 initial companies/sources and 4 search profiles
+docker compose exec -e API_BASE_URL=http://127.0.0.1:8000 backend python -c "print('Backend healthy')"
+API_BASE_URL="https://hydrajob.yourdomain.com" APP_API_KEY="&lt;YOUR_APP_API_KEY&gt;" \
+  python3 supporting_codes/seed_initial_data.py --apply</pre>
+    <div class="worked"><div class="concept-tag">VERIFY BEFORE MOVING ON</div><p>Check <code>https://hydrajob.yourdomain.com/health/ready</code> (should return <code>200 OK</code>) and confirm <code>docker compose ps</code> shows all 6 containers healthy. Verify ports <code>5432</code> and <code>11434</code> are NOT reachable from outside the EC2 host.</p></div>
+  </div></div>
+  <div class="connect">Next: creating your self-hosted n8n owner account and importing the 4 workflows</div>
+</section>
+
+<section id="n8n">
+  <div class="section-head"><div class="num">§ 07 / N8N SETUP</div><h2>Create your n8n account &amp; activate workflows</h2></div>
+  <p class="section-lede">Self-hosted n8n stores your owner account locally in PostgreSQL—no external n8n.cloud account is needed.</p>
+  <div class="prose"><div class="sidenote">Workflow setup</div><div class="prose-body">
+    <div class="steps">
+      <div class="step"><div><h5>Create the n8n Owner Account</h5><p>Open <code>https://hydrajob.yourdomain.com/n8n/</code> (enter your Caddy Basic Auth credentials first). n8n will show its first-run <strong>Set up owner account</strong> screen. Enter your email, name, and a strong password. Skip any optional telemetry/license prompts.</p></div></div>
+      <div class="step"><div><h5>Create the <code>HydraJob X-API-Key</code> Credential</h5><p>In n8n, open <strong>Credentials → Add Credential → Header Auth</strong>:</p>
+        <ul>
+          <li><strong>Name:</strong> <code>HydraJob X-API-Key</code></li>
+          <li><strong>Header Name:</strong> <code>X-API-Key</code></li>
+          <li><strong>Header Value:</strong> paste your <code>APP_API_KEY</code> from <code>.env</code></li>
+        </ul>
+      </div></div>
+      <div class="step"><div><h5>Import all 4 workflows from <code>n8n/workflows/</code></h5><p>Use <strong>Workflows → Import from File</strong> for each of:</p>
+        <ul>
+          <li><code>01_manual_job_intake.json</code> (Webhook → Ingest → Poll → Evaluate)</li>
+          <li><code>02_scheduled_company_scans.json</code> (Every 6h → Scan active sources)</li>
+          <li><code>03_search_execution.json</code> (Daily 09:00 IST → Run active searches)</li>
+          <li><code>04_retry_and_failure_handling.json</code> (Every 2h → Retry bounded failed sources)</li>
+        </ul>
+      </div></div>
+      <div class="step"><div><h5>Attach credentials, test, and activate</h5><p>Open each imported workflow, select <code>HydraJob X-API-Key</code> in every HTTP Request node, click <strong>Test workflow</strong> once to verify <code>200/202</code> responses from <code>http://backend:8000</code>, then toggle the workflow <strong>Active</strong>.</p></div></div>
+    </div>
+  </div></div>
+  <div class="connect">Next: configuring your profile, resumes, and career pages inside the Streamlit dashboard</div>
+</section>
+
+<section id="firstuse">
+  <div class="section-head"><div class="num">§ 08 / DASHBOARD</div><h2>First-run workflow in the Streamlit UI</h2></div>
+  <p class="section-lede">All 11 pages are live at <code>https://hydrajob.yourdomain.com/</code>. Complete these four setup tasks first.</p>
+  <div class="prose"><div class="sidenote">Interactive checklist</div><div class="prose-body">
+    <div class="widget" id="setup-checklist">
+      <div class="w-tag">INTERACTIVE · LAUNCH CHECKLIST</div>
+      <h5>Track your deployment progress (saved in-page during this session)</h5>
+      <div id="chk-list"></div>
+      <div style="margin-top:14px">
+        <button type="button" class="btn alt" id="chk-reset">RESET CHECKLIST</button>
+      </div>
+      <div class="w-info" id="chk-info">0 of 8 steps completed.</div>
+    </div>
+  </div></div>
+  <div class="connect">Next: automated backups, updates, and enabling live Gmail later</div>
+</section>
+
+<section id="ops">
+  <div class="section-head"><div class="num">§ 09 / OPERATIONS</div><h2>Backups, updates &amp; future Gmail OAuth</h2></div>
+  <p class="section-lede">Protect PostgreSQL data before upgrades, and only connect Gmail once job discovery and tracking feel solid.</p>
+  <div class="prose"><div class="sidenote">Day-2 operations</div><div class="prose-body">
+    <h4>Automated PostgreSQL backup cron</h4>
+    <pre class="code">mkdir -p ~/HydraJob/backups
+# Test manual backup:
+docker compose exec -T postgres pg_dump -U hydrajob -d hydrajob | gzip &gt; ~/HydraJob/backups/hydrajob_$(date +%F).sql.gz</pre>
+    <p>Also enable <strong>AWS Data Lifecycle Manager</strong> daily snapshots for your 80 GB EBS volume.</p>
+    <h4>Zero-drama upgrades</h4>
+    <pre class="code">cd ~/HydraJob
+git pull
+docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production up -d --build
+docker compose exec backend alembic upgrade head</pre>
+    <h4>Future Step: Enabling Live Gmail Monitoring (Optional)</h4>
+    <p>The backend already includes the 18-category email classifier, ambiguity-aware application matcher, regression-safe confidence policy (<code>&gt;= 0.90</code> auto-update, <code>0.70–0.89</code> review queue), and <code>09_Recruitment_Emails.py</code> UI. When you are ready to connect a real inbox:</p>
+    <ul>
+      <li>Create a project in <strong>Google Cloud Console</strong>, enable the <strong>Gmail API</strong>, and configure an OAuth 2.0 Client using the read-only scope <code>https://www.googleapis.com/auth/gmail.readonly</code>.</li>
+      <li>Create a dedicated Gmail label/filter (e.g., <code>HydraJob-Recruitment</code>) so only job emails are synced.</li>
+      <li>Wire the OAuth token loader into <code>ReadOnlyGmailApiAdapter</code> in <code>backend/app/services/email/gmail_adapter.py</code> and schedule <code>POST /api/v1/emails/sync</code> in n8n.</li>
+    </ul>
+  </div></div>
+</section>
+
+</div>
+
+<div class="pipeline-final">
+  <div class="pipeline-final-inner">
+    <div class="eyebrow">END-TO-END LAUNCH FLOW</div>
+    <h2>Four stages from blank AWS account to autonomous discovery</h2>
+    <p class="sub">Do each stage in order; do not turn on scheduled n8n scans until Stage 3 manual tests succeed.</p>
+    <div class="stages">
+      <div class="stage"><div class="stage-num">STAGE 01</div><h3>Provision EC2</h3><p>Check credits, set Budget alerts, launch Ubuntu 24.04 on 16 GB RAM + 80 GB gp3 EBS, attach SSM role &amp; Elastic IP.</p><div class="metric">Ports: 80, 443 only</div></div>
+      <div class="stage"><div class="stage-num">STAGE 02</div><h3>Boot Stack</h3><p>Install Docker + log rotation, generate <code>.env</code> secrets, start Compose production profile, pull Ollama model, run Alembic.</p><div class="metric">/health/ready → 200 OK</div></div>
+      <div class="stage"><div class="stage-num">STAGE 03</div><h3>Seed &amp; Verify</h3><p>Run <code>seed_initial_data.py --apply</code>, open Streamlit, verify profile/resumes, test 1–2 career sources &amp; 1 job URL.</p><div class="metric">19 seed sources ready</div></div>
+      <div class="stage"><div class="stage-num">STAGE 04</div><h3>Activate n8n</h3><p>Create n8n owner account, add <code>HydraJob X-API-Key</code> Header Auth, import 4 workflows, test once, toggle Active.</p><div class="metric">Timezone: Asia/Kolkata</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="cheat">
+  <div class="cheat-inner">
+    <div class="eyebrow">QUICK REFERENCE</div>
+    <h2>Operator cheat sheet</h2>
+    <p class="cheat-sub">The exact ports, commands, and safety rules to keep beside your terminal.</p>
+    <div class="cheat-grid">
+      <div class="cheat-card"><h4>PUBLIC ENDPOINTS</h4><div class="big">80 &amp; 443 only</div><div class="big-label">CADDY REVERSE PROXY</div><dl><dt>Dashboard</dt> <dd>https://&lt;domain&gt;/</dd><dt>n8n UI</dt> <dd>https://&lt;domain&gt;/n8n/</dd><dt>Health</dt> <dd>https://&lt;domain&gt;/health/ready</dd></dl></div>
+      <div class="cheat-card"><h4>INTERNAL PORTS</h4><div class="big">Never exposed</div><div class="big-label">HYDRAJOB_INTERNAL NETWORK</div><dl><dt>PostgreSQL</dt> <dd>postgres:5432</dd><dt>Ollama</dt> <dd>ollama:11434</dd><dt>Backend / UI</dt> <dd>backend:8000 / dashboard:8501</dd></dl></div>
+      <div class="cheat-card"><h4>OLLAMA MODEL PULL</h4><div class="big">qwen2.5:7b-instruct</div><div class="big-label">EXPLICIT DOWNLOAD</div><dl><dt>Pull</dt> <dd>docker compose exec ollama ollama pull qwen2.5:7b-instruct</dd><dt>List</dt> <dd>docker compose exec ollama ollama list</dd></dl></div>
+      <div class="cheat-card"><h4>DB MIGRATIONS</h4><div class="big">Alembic head</div><div class="big-label">SCHEMA EVOLUTION</div><dl><dt>Upgrade</dt> <dd>docker compose exec backend alembic upgrade head</dd><dt>Backup</dt> <dd>pg_dump -U hydrajob -d hydrajob</dd></dl></div>
+      <div class="cheat-card"><h4>N8N CREDENTIAL</h4><div class="big">Header Auth</div><div class="big-label">HYDRAJOB X-API-KEY</div><dl><dt>Header</dt> <dd>X-API-Key</dd><dt>Value</dt> <dd>APP_API_KEY from .env</dd><dt>Base URL</dt> <dd>http://backend:8000</dd></dl></div>
+      <div class="cheat-card"><h4>SEED &amp; VERIFY</h4><div class="big">supporting_codes/</div><div class="big-label">HELPER SCRIPTS</div><dl><dt>Secrets</dt> <dd>generate_secrets.py</dd><dt>Compose</dt> <dd>verify_compose.py</dd><dt>Seed</dt> <dd>seed_initial_data.py --apply</dd></dl></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span>HYDRAJOB · SEQUENTIAL SETUP &amp; AWS DEPLOYMENT JOURNEY</span>
+  <span>TIMEZONE: ASIA/KOLKATA</span>
+</footer>
+
+<script>
+(function(){
+  function $(id){return document.getElementById(id);}
+  var items=[
+    "1. Verify AWS credits & set a monthly AWS Budget alert ($15/$30).",
+    "2. Launch Ubuntu 24.04 EC2 (t3a.xlarge 16 GB RAM, 80 GB gp3 EBS, SSM role, Elastic IP) + Security Group (80/443 only).",
+    "3. Install Docker Engine + Compose plugin, configure /etc/docker/daemon.json log rotation, clone HydraJob.",
+    "4. Run generate_secrets.py & caddy hash-password, then populate .env (APP_ENV=production).",
+    "5. Start production Compose stack, pull Ollama model (qwen2.5:7b-instruct), run alembic upgrade head.",
+    "6. Run seed_initial_data.py --apply to load the 19 seed companies & 4 search configs.",
+    "7. Open /n8n/, create owner account, add 'HydraJob X-API-Key' Header Auth, import & activate 4 workflows.",
+    "8. Open Streamlit dashboard: verify 10_System_Health, upload resume text in 05_Profile_and_Resumes, test 1 job URL."
+  ];
+  var state={done:{}};
+  function render(){
+    var list=$('chk-list'); if(!list) return;
+    list.innerHTML='';
+    var count=0;
+    for(var i=0;i<items.length;i++){
+      if(state.done[i]) count++;
+      var row=document.createElement('label');
+      row.className='chk-item'+(state.done[i]?' done':'');
+      var cb=document.createElement('input');
+      cb.type='checkbox';
+      cb.checked=!!state.done[i];
+      (function(idx){
+        cb.onchange=function(){state.done[idx]=cb.checked;render();};
+      })(i);
+      var txt=document.createElement('span');
+      txt.textContent=items[i];
+      row.appendChild(cb);
+      row.appendChild(txt);
+      list.appendChild(row);
+    }
+    var info=$('chk-info');
+    if(info) info.textContent=count+' of '+items.length+' steps completed.';
+  }
+  var reset=$('chk-reset');
+  if(reset) reset.onclick=function(){state.done={};render();};
+  render();
+})();
+</script>
+</body>
+</html>
