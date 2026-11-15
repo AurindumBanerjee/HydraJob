@@ -1,0 +1,213 @@
+# ==============================================================================
+# HydraJob Company Career-Page Seed Registry (Phase 4)
+# ==============================================================================
+# Contains all 19 seed companies across Technology, AI, and Quantitative Finance.
+#
+# Governance & Safety Rules:
+# - Never invent or guess unverified ATS API endpoints (Greenhouse/Lever/Ashby).
+# - All unverified or JavaScript-heavy career portals MUST remain `active: false`
+#   and `status: NEEDS_CONFIGURATION` until inspected via:
+#     POST /api/v1/sources/register  ->  POST /api/v1/sources/{id}/test
+# - Respect robots.txt, rate limits, and terms of service. Never bypass auth/CAPTCHA.
+# ==============================================================================
+
+version: 1
+
+defaults:
+  rate_limit_seconds: 10
+  respect_robots_txt: true
+  timezone: Asia/Kolkata
+
+sources:
+  # --- Technology (9) ---------------------------------------------------------
+  - name: "Google"
+    industry: "Technology"
+    website: "https://about.google/"
+    career_url: "https://www.google.com/about/careers/applications/"
+    adapter: "browser_rendered"
+    verified: false
+    active: false
+    status: "NEEDS_CONFIGURATION"
+    notes: "Complex dynamic portal; run source inspection before activating."
+
+  - name: "Microsoft"
+    industry: "Technology"
+    website: "https://www.microsoft.com/"
+    career_url: "https://careers.microsoft.com/"
+    adapter: "browser_rendered"
+    verified: false
+    active: false
+    status: "NEEDS_CONFIGURATION"
+    notes: "Dynamic careers portal; verify permitted feed or Playwright config."
+
+  - name: "Amazon"
+    industry: "Technology"
+    website: "https://www.amazon.com/"
+    career_url: "https://www.amazon.jobs/"
+    adapter: "browser_rendered"
+    verified: false
+    active: false
+    status: "NEEDS_CONFIGURATION"
+    notes: "Verify public search endpoint or Playwright selector configuration."
+
+  - name: "NVIDIA"
+    industry: "Technology"
+    website: "https://www.nvidia.com/"
+    career_url: "https://www.nvidia.com/en-us/about-nvidia/careers/"
+    adapter: "browser_rendered"
+    verified: false
+    active: false
+    status: "NEEDS_CONFIGURATION"
+    notes: "External ATS redirect; inspect career page to detect exact ATS."
+
+  - name: "Adobe"
+    industry: "Technology"
+    website: "https://www.adobe.com/"
+    career_url: "https://www.adobe.com/careers.html"
+    adapter: "browser_rendered"
+    verified: false
+    active: false
+    status: "NEEDS_CONFIGURATION"
+    notes: "External ATS portal; verify adapter compatibility before activating."
+
+  - name: "Apple"
+    industry: "Technology"
+    website: "https://www.apple.com/"
+    career_url: "https://jobs.apple.com/"
+    adapter: "browser_rendered"
+    verified: false
+    active: false
+    status: "NEEDS_CONFIGURATION"
+    notes: "JS-rendered Apple Jobs portal; requires inspection and validation."
+
+  - name: "Atlassian"
+    industry: "Technology"
+    website: "https://www.atlassian.com/"
+    career_url: "https://www.atlassian.com/company/careers/all-jobs"
+    adapter: "browser_rendered"
+    verified: false
+    active: false
+    status: "NEEDS_CONFIGURATION"
+    notes: "Verify public JSON/HTML structure via source test before activating."
+
+  - name: "Salesforce"
+    industry: "Technology"
+    website: "https://www.salesforce.com/"
+    career_url: "https://careers.salesforce.com/"
+    adapter: "browser_rendered"
+    verified: false
+    active: false
+    status: "NEEDS_CONFIGURATION"
+    notes: "Dynamic careers portal; inspect before enabling scheduled scans."
+
+  - name: "Qualcomm"
+    industry: "Technology"
+    website: "https://www.qualcomm.com/"
+    career_url: "https://www.qualcomm.com/company/careers"
+    adapter: "browser_rendered"
+    verified: false
+    active: false
+    status: "NEEDS_CONFIGURATION"
+    notes: "External ATS portal; inspect and test extraction before activation."
+
+  # --- AI (4) -----------------------------------------------------------------
+  - name: "OpenAI"
+    industry: "AI"
+    website: "https://openai.com/"
+    career_url: "https://openai.com/careers/"
+    adapter: "browser_rendered"
+    verified: false
+    active: false
+    status: "NEEDS_CONFIGURATION"
+    notes: "Inspect live page to verify current ATS adapter (e.g. Ashby/HTML)."
+
+  - name: "Anthropic"
+    industry: "AI"
+    website: "https://www.anthropic.com/"
+    career_url: "https://www.anthropic.com/careers"
+    adapter: "browser_rendered"
+    verified: false
+    active: false
+    status: "NEEDS_CONFIGURATION"
+    notes: "Inspect live page to verify current ATS feed before activating."
+
+  - name: "Meta"
+    industry: "AI"
+    website: "https://about.meta.com/"
+    career_url: "https://www.metacareers.com/"
+    adapter: "browser_rendered"
+    verified: false
+    active: false
+    status: "NEEDS_CONFIGURATION"
+    notes: "JS-rendered Meta Careers portal; check robots.txt and adapter first."
+
+  - name: "Google DeepMind"
+    industry: "AI"
+    website: "https://deepmind.google/"
+    career_url: "https://deepmind.google/about/careers/"
+    adapter: "browser_rendered"
+    verified: false
+    active: false
+    status: "NEEDS_CONFIGURATION"
+    notes: "Verify ATS/portal structure before enabling automated scans."
+
+  # --- Quantitative Finance (6) -----------------------------------------------
+  - name: "Jane Street"
+    industry: "Quantitative Finance"
+    website: "https://www.janestreet.com/"
+    career_url: "https://www.janestreet.com/join-jane-street/open-roles/"
+    adapter: "generic_html"
+    verified: false
+    active: false
+    status: "NEEDS_CONFIGURATION"
+    notes: "Verify public open-roles page structure and rate limits before activating."
+
+  - name: "Tower Research Capital"
+    industry: "Quantitative Finance"
+    website: "https://www.tower-research.com/"
+    career_url: "https://www.tower-research.com/open-positions"
+    adapter: "browser_rendered"
+    verified: false
+    active: false
+    status: "NEEDS_CONFIGURATION"
+    notes: "Inspect embedded ATS board via source onboarding test."
+
+  - name: "D. E. Shaw"
+    industry: "Quantitative Finance"
+    website: "https://www.deshaw.com/"
+    career_url: "https://www.deshaw.com/careers"
+    adapter: "browser_rendered"
+    verified: false
+    active: false
+    status: "NEEDS_CONFIGURATION"
+    notes: "Inspect public roles listing structure before enabling."
+
+  - name: "Optiver"
+    industry: "Quantitative Finance"
+    website: "https://optiver.com/"
+    career_url: "https://optiver.com/working-at-optiver/career-opportunities/"
+    adapter: "browser_rendered"
+    verified: false
+    active: false
+    status: "NEEDS_CONFIGURATION"
+    notes: "Verify public career opportunities page structure before activating."
+
+  - name: "IMC"
+    industry: "Quantitative Finance"
+    website: "https://www.imc.com/"
+    career_url: "https://www.imc.com/us/careers"
+    adapter: "browser_rendered"
+    verified: false
+    active: false
+    status: "NEEDS_CONFIGURATION"
+    notes: "Verify regional career listings (US/EU/APAC) and ATS adapter."
+
+  - name: "Quadeye"
+    industry: "Quantitative Finance"
+    website: "https://www.quadeye.com/"
+    career_url: "https://www.quadeye.com/careers"
+    adapter: "generic_html"
+    verified: false
+    active: false
+    status: "NEEDS_CONFIGURATION"
+    notes: "Verify live careers URL and extraction method before activating."

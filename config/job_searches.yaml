@@ -1,0 +1,178 @@
+# ==============================================================================
+# HydraJob Job Search Configurations (Phase 5 Seed)
+# ==============================================================================
+# Initial search profiles aligned with an IIT Jodhpur B.Tech CSE (2027) profile
+# targeting Data Science, Machine Learning, LLM/NLP, and Software roles.
+#
+# Can be seeded via:
+#   python supporting_codes/seed_initial_data.py --apply
+# Or managed directly from Dashboard -> Search Configuration (08_Search_Configuration.py).
+# ==============================================================================
+
+version: 1
+
+preferences:
+  timezone: Asia/Kolkata
+  graduation_year: 2027
+  evaluation:
+    require_explicit_eligibility_check: true
+    allow_unknown_fields: true
+
+searches:
+  - name: "ML / AI & LLM Engineering (New Grad / 2027)"
+    keywords:
+      - "machine learning"
+      - "deep learning"
+      - "NLP"
+      - "LLM"
+      - "RAG"
+      - "PyTorch"
+      - "computer vision"
+    roles:
+      - "Machine Learning Engineer"
+      - "AI Engineer"
+      - "Applied Scientist"
+      - "NLP Engineer"
+      - "Research Engineer"
+    categories:
+      - "AI"
+      - "Technology"
+    locations:
+      - "Bengaluru"
+      - "Hyderabad"
+      - "Pune"
+      - "Gurgaon"
+      - "Noida"
+      - "India"
+      - "Remote"
+    remote_preference: "ANY"
+    employment_types:
+      - "FULL_TIME"
+    graduation_year: 2027
+    experience_level: "New Grad / Entry Level"
+    included_companies: []
+    excluded_companies: []
+    min_match_score: 70
+    filters:
+      exclude_keywords:
+        - "Senior Staff"
+        - "Principal"
+        - "Director"
+        - "10+ years"
+    is_active: true
+
+  - name: "Data Science & Applied Analytics (Entry Level)"
+    keywords:
+      - "data science"
+      - "SQL"
+      - "Python"
+      - "statistics"
+      - "machine learning"
+      - "experimentation"
+    roles:
+      - "Data Scientist"
+      - "Applied Data Scientist"
+      - "Quantitative Analyst"
+    categories:
+      - "Technology"
+      - "AI"
+      - "Quantitative Finance"
+    locations:
+      - "Bengaluru"
+      - "Hyderabad"
+      - "Mumbai"
+      - "Gurgaon"
+      - "Noida"
+      - "India"
+      - "Remote"
+    remote_preference: "ANY"
+    employment_types:
+      - "FULL_TIME"
+    graduation_year: 2027
+    experience_level: "New Grad / Entry Level"
+    included_companies: []
+    excluded_companies: []
+    min_match_score: 65
+    filters:
+      exclude_keywords:
+        - "Staff"
+        - "Principal"
+        - "8+ years"
+    is_active: true
+
+  - name: "Software & Systems Engineering (Python / C++)"
+    keywords:
+      - "Python"
+      - "C++"
+      - "distributed systems"
+      - "backend"
+      - "systems"
+      - "algorithms"
+    roles:
+      - "Software Engineer"
+      - "Software Development Engineer"
+      - "Systems Engineer"
+      - "Quantitative Developer"
+    categories:
+      - "Technology"
+      - "Quantitative Finance"
+    locations:
+      - "Bengaluru"
+      - "Hyderabad"
+      - "Mumbai"
+      - "Gurgaon"
+      - "India"
+      - "Remote"
+    remote_preference: "ANY"
+    employment_types:
+      - "FULL_TIME"
+    graduation_year: 2027
+    experience_level: "New Grad / Entry Level"
+    included_companies: []
+    excluded_companies: []
+    min_match_score: 65
+    filters:
+      exclude_keywords:
+        - "Senior"
+        - "Staff"
+        - "Principal"
+        - "5+ years"
+    is_active: true
+
+  - name: "AI / ML & Quant Internships (2026-2027)"
+    keywords:
+      - "intern"
+      - "internship"
+      - "machine learning"
+      - "data science"
+      - "quantitative"
+      - "software"
+    roles:
+      - "Machine Learning Intern"
+      - "Data Science Intern"
+      - "Software Engineering Intern"
+      - "Quantitative Research Intern"
+      - "AI Research Intern"
+    categories:
+      - "Technology"
+      - "AI"
+      - "Quantitative Finance"
+    locations:
+      - "India"
+      - "Bengaluru"
+      - "Hyderabad"
+      - "Mumbai"
+      - "Gurgaon"
+      - "Remote"
+    remote_preference: "ANY"
+    employment_types:
+      - "INTERNSHIP"
+    graduation_year: 2027
+    experience_level: "Intern"
+    included_companies: []
+    excluded_companies: []
+    min_match_score: 60
+    filters:
+      exclude_keywords:
+        - "PhD only"
+    is_active: true
