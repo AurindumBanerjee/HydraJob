@@ -1,0 +1,16 @@
+{
+  "jobs": [
+    {
+      "id": "ashby-901",
+      "title": "Applied AI Research Engineer",
+      "jobUrl": "https://jobs.ashbyhq.com/synthlabs/ashby-901?ashby_jid=ashby-901",
+      "applyUrl": "https://jobs.ashbyhq.com/synthlabs/ashby-901/application",
+      "location": "Bengaluru",
+      "department": "Research",
+      "employmentType": "FullTime",
+      "isRemote": false,
+      "publishedAt": "2026-11-08T08:00:00Z",
+      "descriptionPlain": "Work on model fine-tuning, PyTorch training loops, and C++ inference kernels."
+    }
+  ]
+}

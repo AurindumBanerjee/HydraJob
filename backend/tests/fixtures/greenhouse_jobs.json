@@ -1,0 +1,38 @@
+{
+  "jobs": [
+    {
+      "id": 4012345,
+      "internal_job_id": 99001,
+      "title": "Machine Learning Engineer (New Grad)",
+      "absolute_url": "https://boards.greenhouse.io/acme/jobs/4012345?gh_src=abc",
+      "location": {
+        "name": "Bengaluru, India"
+      },
+      "departments": [
+        {
+          "id": 12,
+          "name": "Applied AI"
+        }
+      ],
+      "updated_at": "2026-11-10T09:30:00Z",
+      "content": "&lt;p&gt;Build scalable LLM and RAG evaluation services using Python, PyTorch, and SQL.&lt;/p&gt;"
+    },
+    {
+      "id": 4012346,
+      "internal_job_id": 99002,
+      "title": "Data Science Intern",
+      "absolute_url": "https://boards.greenhouse.io/acme/jobs/4012346",
+      "location": {
+        "name": "Remote - India"
+      },
+      "departments": [
+        {
+          "id": 15,
+          "name": "Data Science"
+        }
+      ],
+      "updated_at": "2026-11-11T11:00:00Z",
+      "content": "&lt;p&gt;Summer internship working on NLP classification and feature pipelines.&lt;/p&gt;"
+    }
+  ]
+}

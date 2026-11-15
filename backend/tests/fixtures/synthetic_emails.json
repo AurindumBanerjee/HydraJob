@@ -1,0 +1,84 @@
+{
+  "messages": [
+    {
+      "gmail_message_id": "msg-001",
+      "thread_id": "thr-acme-ml",
+      "sender": "Acme AI Recruiting <careers@acmeai.com>",
+      "subject": "Thank you for applying to Machine Learning Engineer Intern at Acme AI",
+      "snippet": "Thank you for applying for the Machine Learning Engineer Intern position (APP-1001). Our team will review your profile.",
+      "received_at": "2026-11-01T10:00:00Z",
+      "labels": ["recruitment"],
+      "history_id": "1001"
+    },
+    {
+      "gmail_message_id": "msg-002",
+      "thread_id": "thr-acme-ml",
+      "sender": "Acme AI Recruiting <careers@acmeai.com>",
+      "subject": "HackerRank Online Assessment Invitation - Machine Learning Engineer Intern",
+      "snippet": "You are invited to complete an online assessment on HackerRank within 72 hours.",
+      "received_at": "2026-11-03T12:00:00Z",
+      "labels": ["recruitment"],
+      "history_id": "1002"
+    },
+    {
+      "gmail_message_id": "msg-003",
+      "thread_id": "thr-acme-ml",
+      "sender": "Acme AI Recruiting <careers@acmeai.com>",
+      "subject": "Interview Invitation: Technical Interview for Machine Learning Engineer Intern",
+      "snippet": "We would like to schedule a technical interview with our Applied AI lead. Please book an interview slot.",
+      "received_at": "2026-11-06T09:30:00Z",
+      "labels": ["recruitment"],
+      "history_id": "1003"
+    },
+    {
+      "gmail_message_id": "msg-004",
+      "thread_id": "thr-nova-offer",
+      "sender": "NovaQuant Talent <talent@novaquant.com>",
+      "subject": "Formal Offer of Internship - AI Systems Engineer (APP-2002)",
+      "snippet": "We are pleased to extend a formal offer of internship for the AI Systems Engineer role. Please review the attached offer letter.",
+      "received_at": "2026-11-09T14:00:00Z",
+      "labels": ["recruitment"],
+      "history_id": "1004"
+    },
+    {
+      "gmail_message_id": "msg-005",
+      "thread_id": "thr-vector-rej",
+      "sender": "VectorLabs Recruiting <no-reply@vectorlabs.com>",
+      "subject": "Update on your NLP Research Intern application",
+      "snippet": "Thank you for your time. Unfortunately, we have decided not to proceed with your application as we move forward with other candidates.",
+      "received_at": "2026-11-10T16:15:00Z",
+      "labels": ["recruitment"],
+      "history_id": "1005"
+    },
+    {
+      "gmail_message_id": "msg-006",
+      "thread_id": "thr-ambig-1",
+      "sender": "BigTech Talent <recruiting@bigtech.com>",
+      "subject": "Next steps regarding your application at BigTech",
+      "snippet": "We are reviewing your application and would like to schedule a brief interview chat.",
+      "received_at": "2026-11-11T08:00:00Z",
+      "labels": ["recruitment"],
+      "history_id": "1006"
+    },
+    {
+      "gmail_message_id": "msg-007",
+      "thread_id": "thr-noise",
+      "sender": "CloudBilling <billing@cloud.example>",
+      "subject": "Monthly Newsletter & Invoice #88412",
+      "snippet": "Your monthly newsletter and invoice #88412 are ready. Unsubscribe from marketing emails anytime.",
+      "received_at": "2026-11-12T07:00:00Z",
+      "labels": ["recruitment"],
+      "history_id": "1007"
+    },
+    {
+      "gmail_message_id": "msg-001",
+      "thread_id": "thr-acme-ml",
+      "sender": "Acme AI Recruiting <careers@acmeai.com>",
+      "subject": "Duplicate delivery test",
+      "snippet": "Should be deduplicated by gmail_message_id.",
+      "received_at": "2026-11-01T10:00:00Z",
+      "labels": ["recruitment"],
+      "history_id": "1001"
+    }
+  ]
+}

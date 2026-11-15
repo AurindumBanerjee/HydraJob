@@ -1,0 +1,15 @@
+[
+  {
+    "id": "lever-uuid-101",
+    "text": "NLP Engineer Intern",
+    "hostedUrl": "https://jobs.lever.co/vectorai/lever-uuid-101?utm_source=portal",
+    "applyUrl": "https://jobs.lever.co/vectorai/lever-uuid-101/apply",
+    "workplaceType": "hybrid",
+    "categories": {
+      "location": "Hyderabad, India",
+      "team": "Language Models",
+      "commitment": "Intern"
+    },
+    "descriptionPlain": "Develop domain-adapted Transformers, RAG indexing, and Python inference benchmarks."
+  }
+]

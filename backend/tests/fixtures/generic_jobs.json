@@ -1,0 +1,13 @@
+{
+  "results": [
+    {
+      "id": "gen-55",
+      "title": "Computer Vision Engineer",
+      "company": "VisionCore",
+      "url": "https://careers.visioncore.example/jobs/cv-engineer?ref=board",
+      "location": "Pune, India",
+      "employment_type": "FULL_TIME",
+      "description": "Build real-time video analytics with PyTorch, Computer Vision, and C++."
+    }
+  ]
+}
