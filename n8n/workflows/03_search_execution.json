@@ -1,0 +1,196 @@
+{
+  "name": "HydraJob 03 - Search Configuration Execution",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * *"
+            }
+          ]
+        }
+      },
+      "id": "node-schedule-search",
+      "name": "Schedule - Daily 09:00 IST",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [220, 220]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "hydrajob/run-search",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "node-webhook-search",
+      "name": "Webhook - Manual Search Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [220, 400],
+      "webhookId": "hydrajob-run-search"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ ($env.HYDRAJOB_API_BASE_URL || 'http://backend:8000') + '/api/v1/searches?is_active=true&limit=100' }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "node-http-list-searches",
+      "name": "HTTP Request - List Active Searches",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_N8N_HEADER_AUTH_CREDENTIAL_ID",
+          "name": "HydraJob X-API-Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "items",
+        "options": {}
+      },
+      "id": "node-split-searches",
+      "name": "Split Out - Search Items",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [700, 300]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "node-loop-searches",
+      "name": "Loop Over Searches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [920, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ ($env.HYDRAJOB_API_BASE_URL || 'http://backend:8000') + '/api/v1/discovery/run-search/' + $json.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "node-http-run-search",
+      "name": "HTTP Request - Run Search",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1160, 300],
+      "continueOnFail": true,
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_N8N_HEADER_AUTH_CREDENTIAL_ID",
+          "name": "HydraJob X-API-Key"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "node-search-done",
+      "name": "Search Execution Complete",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1160, 140]
+    }
+  ],
+  "connections": {
+    "Schedule - Daily 09:00 IST": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - List Active Searches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook - Manual Search Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - List Active Searches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - List Active Searches": {
+      "main": [
+        [
+          {
+            "node": "Split Out - Search Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out - Search Items": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Searches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Searches": {
+      "main": [
+        [
+          {
+            "node": "Search Execution Complete",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request - Run Search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Run Search": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Searches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Kolkata"
+  },
+  "pinData": {},
+  "tags": ["hydrajob", "phase-7", "search"]
+}

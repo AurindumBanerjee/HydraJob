@@ -1,0 +1,245 @@
+{
+  "name": "HydraJob 01 - Manual Job Intake & Evaluation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "hydrajob/job-intake",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "node-webhook-intake",
+      "name": "Webhook - Job URL Intake",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [220, 300],
+      "webhookId": "hydrajob-job-intake"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ ($env.HYDRAJOB_API_BASE_URL || 'http://backend:8000') + '/api/v1/jobs/ingest' }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ url: $json.body.url, use_ollama: true }) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "node-http-ingest",
+      "name": "HTTP Request - Ingest Job URL",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 300],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_N8N_HEADER_AUTH_CREDENTIAL_ID",
+          "name": "HydraJob X-API-Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 5,
+        "unit": "seconds"
+      },
+      "id": "node-wait-ingest",
+      "name": "Wait - Poll Delay",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ ($env.HYDRAJOB_API_BASE_URL || 'http://backend:8000') + '/api/v1/jobs/ingest/' + $json.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "node-http-poll-run",
+      "name": "HTTP Request - Check Ingestion Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_N8N_HEADER_AUTH_CREDENTIAL_ID",
+          "name": "HydraJob X-API-Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-extracted-job-id",
+              "leftValue": "={{ $json.extracted_job_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node-if-extracted",
+      "name": "IF - Job Extracted",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ ($env.HYDRAJOB_API_BASE_URL || 'http://backend:8000') + '/api/v1/jobs/' + $json.extracted_job_id + '/evaluate' }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ use_ollama: true, create_tasks: true }) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "node-http-evaluate",
+      "name": "HTTP Request - Evaluate Job",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1360, 220],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_N8N_HEADER_AUTH_CREDENTIAL_ID",
+          "name": "HydraJob X-API-Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ status: 'evaluated', job_id: $json.job_id, overall_score: $json.overall_score, eligibility_status: $json.eligibility_status }) }}",
+        "options": {}
+      },
+      "id": "node-respond-ok",
+      "name": "Respond - Evaluated",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1580, 220]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ status: $json.status || 'needs_review', ingestion_run_id: $json.id, errors: $json.errors || [] }) }}",
+        "options": {
+          "responseCode": 202
+        }
+      },
+      "id": "node-respond-review",
+      "name": "Respond - Pending Review",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1360, 400]
+    }
+  ],
+  "connections": {
+    "Webhook - Job URL Intake": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - Ingest Job URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Ingest Job URL": {
+      "main": [
+        [
+          {
+            "node": "Wait - Poll Delay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait - Poll Delay": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - Check Ingestion Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Check Ingestion Status": {
+      "main": [
+        [
+          {
+            "node": "IF - Job Extracted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Job Extracted": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - Evaluate Job",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond - Pending Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Evaluate Job": {
+      "main": [
+        [
+          {
+            "node": "Respond - Evaluated",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Kolkata"
+  },
+  "pinData": {},
+  "tags": ["hydrajob", "phase-7", "intake"]
+}
