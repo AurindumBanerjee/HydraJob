@@ -237,3 +237,7 @@ caddy_config/
 n8n/local_files/
 breakdown.md
 
+
+# Local-only folders
+to_delete/
+supporting_codes/
